@@ -44,14 +44,14 @@ jobs:
           echo "Adding $ANDROID_HOME/platform-tools and $ANDROID_HOME/build-tools/33.0.2 to PATH"
           export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/33.0.2:$PATH"
           echo "Updated PATH: $PATH"
-          echo "Which aidl: $(which aidl)"
+          command -v aidl
       - name: Verify aidl
         env:
           PATH: "$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/33.0.2:$PATH"
         run: |
           echo "Verifying aidl installation"
-          if which aidl; then
-            echo "aidl found in PATH: $(which aidl)"
+          if command -v aidl; then
+            echo "aidl found in PATH: $(command -v aidl)"
             aidl
           else
             echo "aidl not found in PATH"
