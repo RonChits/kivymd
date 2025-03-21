@@ -34,13 +34,16 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          # Corrected attributes:
-          cmdline-tools-version: "latest" # Use this to specify the version
+          cmdline-tools-version: "latest"
           accept-android-sdk-licenses: true
       - name: Install Android Build Tools and Platform
         run: |
           sdkmanager "platforms;android-33"
           sdkmanager "build-tools;33.0.2"
+          sdkmanager "platform-tools" # Install platform-tools
+      - name: Add platform-tools to PATH
+        run: |
+          echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
       - name: Initialize Buildozer
         run: |
           if [ ! -f "buildozer.spec" ]; then
