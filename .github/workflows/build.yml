@@ -53,9 +53,25 @@ jobs:
             echo "aidl not found in PATH"
             exit 1
           fi
+      - name: Buildozer Environment Check
+        run: |
+          buildozer --version
+          buildozer android --help
+      - name: Python and Kivy Version Check
+        run: |
+          python --version
+          python -m kivy --version
+      - name: Validate buildozer.spec
+        run: |
+          buildozer checkspec
       - name: Build APK
         run: |
-          buildozer android debug
+          buildozer android debug 2>&1 | tee buildozer.log
+      - name: Show Buildozer Output
+        if: always()
+        run: |
+          echo "Buildozer Output:"
+          cat buildozer.log
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
