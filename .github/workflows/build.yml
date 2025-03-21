@@ -26,17 +26,25 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          cmdline-tools-version: "latest"
+          cmdline-tools: "latest"
           accept-android-sdk-licenses: true
-          platform-tools: true
-          build-tools: "33.0.2"
-          platforms: "android-33"
+          components: build-tools;33.0.2,platform-tools,platforms;android-33
+
+      - name: Debug PATH
+        run: echo "$PATH"
+
+      - name: Debug ANDROID_HOME
+        run: echo "$ANDROID_HOME"
+
+      - name: List Build Tools
+        run: ls $ANDROID_HOME/build-tools/33.0.2
+
       - name: Verify AIDL installation
         run: |
           echo "Verifying aidl installation"
           if command -v aidl; then
             echo "aidl found in PATH: $(command -v aidl)"
-            aidl --version # Check if aidl works
+            aidl --version
           else
             echo "aidl not found in PATH"
             exit 1
