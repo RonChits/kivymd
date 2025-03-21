@@ -67,3 +67,8 @@ jobs:
         with:
           name: ${{ steps.get-date.outputs.DATE }}-android-apk
           path: bin/*.apk
+      - name: Show Buildozer Output
+        if: failure()  # Only run on failure
+        run: |
+          echo "Buildozer Output:"
+          cat .buildozer/app.log #show the buildozer log
