@@ -39,17 +39,18 @@ jobs:
           platform-tools: true
           build-tools: "33.0.2"
           platforms: "android-33"
-      - name: Add Android SDK to PATH
+      - name: Check Android SDK Environment
         run: |
-          echo "Adding Android SDK to PATH"
-          echo "$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/33.0.2" >> $GITHUB_PATH
+          echo "ANDROID_HOME=$ANDROID_HOME"
           echo "PATH=$PATH"
+          ls -l $ANDROID_HOME/platform-tools
+          ls -l $ANDROID_HOME/build-tools/33.0.2
       - name: Verify aidl
         run: |
           echo "Verifying aidl installation"
           if which aidl; then
-            echo "aidl found in PATH"
-            aidl --version
+            echo "aidl found in PATH: $(which aidl)"
+            aidl 
           else
             echo "aidl not found in PATH"
             exit 1
@@ -68,7 +69,7 @@ jobs:
           name: ${{ steps.get-date.outputs.DATE }}-android-apk
           path: bin/*.apk
       - name: Show Buildozer Output
-        if: failure()  # Only run on failure
+        if: failure()
         run: |
           echo "Buildozer Output:"
-          cat .buildozer/app.log #show the buildozer log
+          cat .buildozer/app.log
