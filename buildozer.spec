@@ -162,7 +162,9 @@ fullscreen = 0
 
 # (list) Pattern to whitelist for the whole project
 #android.whitelist =
-
+android.api = 33
+android.minapi = 21
+android.archs = arm64-v8a, armeabi-v7a
 # (str) Path to a custom whitelist file
 #android.whitelist_src =
 
