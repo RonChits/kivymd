@@ -16,17 +16,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.9"
-      - name: Get Date
-        id: get-date
-        run: |
-          echo "::set-output name=DATE::$(date +'%Y%m%d')"
-        shell: bash
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f "requirements.txt" ]; then
-            python -m pip install -r requirements.txt;
-          fi
           python -m pip install "kivy[full]"
           python -m pip install cython==0.29.36
           python -m pip install -U setuptools wheel
@@ -39,28 +31,15 @@ jobs:
           platform-tools: true
           build-tools: "33.0.2"
           platforms: "android-33"
-      - name: Add Android SDK to PATH
-        run: |
-          echo "Adding $ANDROID_HOME/platform-tools and $ANDROID_HOME/build-tools/33.0.2 to PATH"
-          export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/33.0.2:$PATH"
-          echo "Updated PATH: $PATH"
-          command -v aidl
-      - name: Verify aidl
-        env:
-          PATH: "$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/33.0.2:$PATH"
+      - name: Verify AIDL installation
         run: |
           echo "Verifying aidl installation"
           if command -v aidl; then
             echo "aidl found in PATH: $(command -v aidl)"
-            aidl
+            aidl --version # Check if aidl works
           else
             echo "aidl not found in PATH"
             exit 1
-          fi
-      - name: Initialize Buildozer
-        run: |
-          if [ ! -f "buildozer.spec" ]; then
-            buildozer init;
           fi
       - name: Build APK
         run: |
@@ -68,7 +47,7 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ steps.get-date.outputs.DATE }}-android-apk
+          name: android-apk
           path: bin/*.apk
       - name: Show Buildozer Output
         if: failure()
