@@ -10,70 +10,62 @@ jobs:
   build:
     runs-on: ubuntu-20.04
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Important for proper caching
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.9"
-
       - name: Get Date
         id: get-date
         run: |
           echo "::set-output name=DATE::$(date +'%Y%m%d')"
         shell: bash
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if [ -f "requirements.txt" ]; then \
-            python -m pip install -r requirements.txt; \
+          if [ -f "requirements.txt" ]; then
+            python -m pip install -r requirements.txt;
           fi
           python -m pip install "kivy[full]"
           python -m pip install cython==0.29.36
           python -m pip install -U setuptools wheel
           python -m pip install buildozer
-
       - name: Initialize Buildozer
         run: |
-          if [ ! -f "buildozer.spec" ]; then \
-            buildozer init; \
+          if [ ! -f "buildozer.spec" ]; then
+            buildozer init;
           fi
-
       - name: Copy main.py
         run: |
-          mkdir -p .buildozer/app
-          cp kivymdmain.py .buildozer/app/main.py
-
+          if [ -f "main.py" ]; then
+            mkdir -p .buildozer/app;
+            cp main.py .buildozer/app/main.py;
+          else
+            echo "main.py not found, skipping copy";
+          fi
       - name: Update Buildozer.spec
         run: |
-          sed -i "s/#(source.dir = \.)/source.dir = ./" buildozer.spec
-          sed -i "s/(title = My Application)/(title = My App)/g" buildozer.spec # Change App Name
-          sed -i "s/(package.name = org.test.myapp)/(package.name = org.mypackage.myapp)/g" buildozer.spec # Change package name
-          sed -i "s/(version = 0.1)/(version = 1.0.0)/g" buildozer.spec # Change Version
-          sed -i "s/(version = 1.0.0)/version = 1.0.${{ steps.get-date.outputs.DATE }}/g" buildozer.spec # set build number
-
+          sed -i "s/#\(source\.dir = \.\)/source\.dir = \./" buildozer.spec
+          sed -i "s/\(title = My Application\)/(title = My App)/g" buildozer.spec # Change App Name
+          sed -i "s/\(package\.name = org\.test\.myapp\)/(package\.name = org\.mypackage\.myapp\)/g" buildozer.spec # Change package name
+          sed -i "s/\(version = 0\.1\)/(version = 1\.0\.0\)/g" buildozer.spec # Change Version
+          sed -i "s/\(version = 1\.0\.0\)/version = 1\.0\.${{ steps.get-date.outputs.DATE }}/g" buildozer.spec # set build number
       - name: Cache Buildozer global
-        uses: actions/cache@v3  # Use v3
+        uses: actions/cache@v3
         with:
           path: ~/.buildozer
           key: buildozer-global
-
       - name: Cache Buildozer app
-        uses: actions/cache@v3 # Use v3
+        uses: actions/cache@v3
         with:
           path: .buildozer
           key: buildozer-app-${{ runner.os }}-${{ steps.get-date.outputs.DATE }}-${{ hashFiles('buildozer.spec') }}
           restore-keys: |
             buildozer-app-${{ runner.os }}-${{ steps.get-date.outputs.DATE }}-
             buildozer-app-${{ runner.os }}-
-
       - name: Build APK
         run: buildozer android debug
-
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
