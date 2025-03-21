@@ -39,12 +39,6 @@ jobs:
           platform-tools: true
           build-tools: "33.0.2"
           platforms: "android-33"
-      - name: Check Android SDK Environment
-        run: |
-          echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "PATH=$PATH"
-          ls -l $ANDROID_HOME/platform-tools
-          ls -l $ANDROID_HOME/build-tools/33.0.2
       - name: Add Android SDK to PATH
         run: |
           echo "Adding $ANDROID_HOME/platform-tools and $ANDROID_HOME/build-tools/33.0.2 to PATH"
@@ -52,6 +46,8 @@ jobs:
           echo "Updated PATH: $PATH"
           echo "Which aidl: $(which aidl)"
       - name: Verify aidl
+        env:
+          PATH: "$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/33.0.2:$PATH"
         run: |
           echo "Verifying aidl installation"
           if which aidl; then
