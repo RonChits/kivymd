@@ -37,8 +37,16 @@ jobs:
           cmdline-tools-version: "latest"
           accept-android-sdk-licenses: true
           platform-tools: true
-          build-tools: "33.0.2" # Or a version your app requires
-          platforms: "android-33" # Or a version your app requires
+          build-tools: "33.0.2"
+          platforms: "android-33"
+      - name: Add Android SDK to PATH
+        run: |
+          echo "Adding Android SDK to PATH"
+          echo "$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/33.0.2" >> $GITHUB_PATH
+      - name: Verify aidl
+        run: |
+          which aidl
+          aidl --version
       - name: Initialize Buildozer
         run: |
           if [ ! -f "buildozer.spec" ]; then
