@@ -38,7 +38,10 @@ jobs:
           python -m pip install buildozer
 
       - name: Initialize Buildozer
-        run: buildozer init
+        run: |
+          if [ ! -f "buildozer.spec" ]; then \
+            buildozer init; \
+          fi
 
       - name: Copy main.py
         run: |
