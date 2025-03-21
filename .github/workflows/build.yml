@@ -19,8 +19,8 @@ jobs:
       - name: Get Date
         id: get-date
         run: |
-          echo "::set-output name=DATE::$(date +'%Y%m%d')"
-          shell: bash
+          DATE=$(date +'%Y%m%d')
+          echo "DATE=$DATE" >> $GITHUB_OUTPUT
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -44,7 +44,7 @@ jobs:
           echo "Verifying aidl installation"
           if command -v aidl; then
             echo "aidl found in PATH: $(command -v aidl)"
-            aidl --version # Check aidl version to verify it works.
+            aidl --version
           else
             echo "aidl not found in PATH"
             exit 1
