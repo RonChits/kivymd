@@ -31,6 +31,21 @@ jobs:
           python -m pip install cython==0.29.36
           python -m pip install -U setuptools wheel
           python -m pip install buildozer
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          sdk-version: "33" # Or the highest API level your app supports
+          ndk-version: "25.1.8937393" # Recommended NDK version
+          # This is crucial for accepting licenses:
+          cmdline-tools: "latest"
+      - name: Accept Android Licenses
+        run: |
+          echo "y" | sdkmanager --licenses || true
+      - name: Install Android Build Tools
+        run: |
+          sdkmanager "build-tools;33.0.2" # Or match the sdk-version
+          sdkmanager "platform-tools"
+          sdkmanager "platforms;android-33" # Or match
       - name: Initialize Buildozer
         run: |
           if [ ! -f "buildozer.spec" ]; then
