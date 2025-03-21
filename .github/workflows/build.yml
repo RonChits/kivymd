@@ -43,10 +43,17 @@ jobs:
         run: |
           echo "Adding Android SDK to PATH"
           echo "$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/33.0.2" >> $GITHUB_PATH
+          echo "PATH=$PATH"
       - name: Verify aidl
         run: |
-          which aidl
-          aidl --version
+          echo "Verifying aidl installation"
+          if which aidl; then
+            echo "aidl found in PATH"
+            aidl --version
+          else
+            echo "aidl not found in PATH"
+            exit 1
+          fi
       - name: Initialize Buildozer
         run: |
           if [ ! -f "buildozer.spec" ]; then
