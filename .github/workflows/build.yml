@@ -36,14 +36,21 @@ jobs:
         with:
           cmdline-tools-version: "latest"
           accept-android-sdk-licenses: true
-      - name: Install Android Build Tools and Platform
+          platform-tools: true
+          build-tools: "33.0.2"
+          platforms: "android-33"
+      - name: Check ANDROID_HOME
         run: |
-          sdkmanager "platforms;android-33"
-          sdkmanager "build-tools;33.0.2"
-          sdkmanager "platform-tools" # Install platform-tools
+          echo "ANDROID_HOME=$ANDROID_HOME" # Print ANDROID_HOME
       - name: Add platform-tools to PATH
         run: |
+          echo "Adding $ANDROID_HOME/platform-tools to PATH"
           echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
+          echo "PATH=$PATH" # Print PATH
+      - name: Verify aidl
+        run: |
+          which aidl # Check if aidl is found
+          aidl --version # Get aidl version
       - name: Initialize Buildozer
         run: |
           if [ ! -f "buildozer.spec" ]; then
