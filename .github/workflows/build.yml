@@ -1,84 +1,65 @@
-name: Build Android APK
+name: Build APK
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+on: [push, workflow_dispatch]
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
-      - name: Get Date
-        id: get-date
-        run: |
-          DATE=$(date +'%Y%m%d')
-          echo "DATE=$DATE" >> $GITHUB_OUTPUT
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          if [ -f "requirements.txt" ]; then
-            python -m pip install -r requirements.txt;
-          fi
-          python -m pip install "kivy[full]"
-          python -m pip install cython==0.29.36
-          python -m pip install -U setuptools wheel
-          python -m pip install buildozer
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: "latest"
-          accept-android-sdk-licenses: true
-          packages: |
-            build-tools;33.0.2
-            platform-tools
-            platforms;android-33
-      - name: Verify AIDL installation and Debug
-        run: |
-          echo "Verifying aidl installation"
-          echo "PATH: $PATH"
-          echo "ANDROID_HOME: $ANDROID_HOME"
-          ls $ANDROID_HOME/build-tools/33.0.2
-          if command -v aidl; then
-            echo "aidl found in PATH: $(command -v aidl)"
-            aidl --version
-          else
-            echo "aidl not found in PATH"
-            exit 1
-          fi
-      - name: Buildozer Environment Check
-        run: |
-          buildozer --version
-          buildozer android --help
-      - name: Python and Kivy Version Check
-        run: |
-          python --version
-          python -m kivy --version
-      - name: Validate buildozer.spec
-        run: |
-          buildozer checkspec
-      - name: Build APK
-        run: |
-          buildozer android debug 2>&1 | tee buildozer.log
-      - name: Show Buildozer Output
-        if: always()
-        run: |
-          echo "Buildozer Output:"
-          cat buildozer.log
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.get-date.outputs.DATE }}-android-apk
-          path: bin/*.apk
-      - name: Show Buildozer Output
-        if: failure()
-        run: |
-          echo "Buildozer Output:"
-          cat .buildozer/app.log
+    - name: Checkout code
+      uses: actions/checkout@v2
+    
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+            zip \
+            unzip \
+            openjdk-11-jdk \
+            git \
+            autoconf \
+            libtool \
+            pkg-config \
+            zlib1g-dev \
+            libncurses5-dev \
+            libncursesw5-dev \
+            libtinfo5 \
+            cmake
+        pip install buildozer cython==0.29.19
+    
+    - name: Initialize Buildozer
+      run: |
+        buildozer init
+        # Update buildozer.spec with your configuration
+        echo "[app]
+title = MyApp
+package.name = myapp
+package.domain = org.mydomain
+source.dir = .
+source.include_exts = py,png,jpg,kv,atlas
+version = 0.1
+requirements = python3,kivy==2.0.0,kivymd
+orientation = portrait
+android.api = 30
+android.minapi = 21
+android.ndk = 19b
+android.sdk = 26
+android.arch = armeabi-v7a" > buildozer.spec
+    
+    - name: Build APK
+      run: |
+        buildozer -v android debug
+        mkdir dist
+        cp bin/*.apk dist/
+    
+    - name: Upload APK artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: app-apk
+        path: dist/*.apk
