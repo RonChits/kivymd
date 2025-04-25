@@ -1,0 +1,402 @@
+#:import MDTabs kivymd.uix.tab.MDTabs
+#:import MDTextField kivymd.uix.textfield.MDTextField
+#:import MDRaisedButton kivymd.uix.button.MDRaisedButton
+#:import MDFlatButton kivymd.uix.button.MDFlatButton
+#:import MDToolbar kivymd.uix.toolbar.MDToolbar
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+#:import dp kivy.metrics.dp
+#:import get_color_from_hex kivy.utils.get_color_from_hex
+#:set primary_brown [0.364, 0.251, 0.216, 1]  # RGB values for #5D4037 (0-1 range)
+#:set secondary_brown [0.843, 0.8, 0.784, 1]  # RGB values for #D7CCC8
+#:set text_on_brown [1, 1, 1, 1]  # White
+
+<LoginScreen>:
+    name: 'login'
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: dp(5)
+        canvas.before:
+            Color:
+                rgba: primary_brown
+
+        MDToolbar:
+            title: "Login"
+            elevation: 10
+            md_bg_color: get_color_from_hex("#1976D2")
+            pos_hint: {'top': 1}
+
+        ScrollView:
+            canvas.before:
+                Color:
+                    rgba: get_color_from_hex("#f5f5f5")
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
+            BoxLayout:
+                orientation: 'vertical'
+                padding: dp(20)
+                spacing: dp(15)
+                size_hint_y: None
+                height: self.minimum_height
+                pos_hint: {'center_y': 0.5}
+
+                MDTextField:
+                    id: username_field
+                    hint_text: "Username"
+                    icon_right: "account"
+                    size_hint_x: 0.6
+                    height: dp(40)
+                    pos_hint: {'center_x': 0.5}
+                    mode: "rectangle"
+
+                MDTextField:
+                    id: password_field
+                    hint_text: "Password"
+                    icon_right: "key"
+                    password: True
+                    size_hint_x: 0.6
+                    height: dp(40)
+                    pos_hint: {'center_x': 0.5}
+                    mode: "rectangle"
+
+                MDRaisedButton:
+                    text: "Login"
+                    size_hint_x: 0.4
+                    height: dp(40)
+                    pos_hint: {'center_x': 0.5}
+                    on_release: app.login()
+
+                MDFlatButton:
+                    text: "Don't have an account? Sign up"
+                    size_hint_x: 0.5
+                    height: dp(30)
+                    pos_hint: {'center_x': 0.5}
+                    on_release: app.show_signup()
+
+<SignupScreen>:
+    name: 'signup'
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: dp(5)
+
+        MDToolbar:
+            title: "Sign Up"
+            elevation: 10
+            md_bg_color: get_color_from_hex("#1976D2")
+            left_action_items: [['arrow-left', lambda x: app.show_login()]]
+            pos_hint: {'top': 1}
+
+        ScrollView:
+            canvas.before:
+                Color:
+                    rgba: get_color_from_hex("#f5f5f5")
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
+            BoxLayout:
+                orientation: 'vertical'
+                padding: dp(20)
+                spacing: dp(15)
+                size_hint_y: None
+                height: self.minimum_height
+                pos_hint: {'center_y': 0.5}
+
+                MDTextField:
+                    id: username_field
+                    hint_text: "Username"
+                    icon_right: "account"
+                    size_hint_x: 0.6
+                    height: dp(40)
+                    pos_hint: {'center_x': 0.5}
+                    mode: "rectangle"
+
+                MDTextField:
+                    id: email_field
+                    hint_text: "Email"
+                    icon_right: "email"
+                    size_hint_x: 0.6
+                    height: dp(40)
+                    pos_hint: {'center_x': 0.5}
+                    mode: "rectangle"
+
+                MDTextField:
+                    id: password_field
+                    hint_text: "Password"
+                    icon_right: "key"
+                    password: True
+                    size_hint_x: 0.6
+                    height: dp(40)
+                    pos_hint: {'center_x': 0.5}
+                    mode: "rectangle"
+
+                MDRaisedButton:
+                    text: "Sign Up"
+                    size_hint_x: 0.4
+                    height: dp(40)
+                    pos_hint: {'center_x': 0.5}
+                    on_release: app.signup()
+<MainAppScreen>:
+    name: 'main_app'
+    BoxLayout:
+        orientation: 'vertical'
+
+        MDToolbar:
+            title: "Modern KivyMD App"
+            elevation: 10
+            right_action_items: [['logout', lambda x: app.logout()]]
+
+        MDTabs:
+            id: tabs
+            TabConverter:
+                text: "Converter"
+                icon: "swap-horizontal"
+            TabCalculator:
+                text: "Calculator"
+                icon: "calculator"
+            TabToDo:
+                text: "To-Do"
+                icon: "format-list-checks"
+            TabInfo:
+                text: "Info"
+                icon: "information"
+
+<TabConverter>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(20)
+        spacing: dp(20)
+
+        MDLabel:
+            text: "Unit Converter"
+            halign: 'center'
+            font_style: 'H5'
+            size_hint_y: None
+            height: self.texture_size[1]
+
+        Spinner:
+            id: category_spinner
+            text: root.current_category
+            values: ['Length', 'Weight', 'Temperature']
+            size_hint: None, None
+            size: dp(200), dp(40)
+            pos_hint: {'center_x': 0.5}
+            on_text: root.current_category = self.text
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: dp(60)
+            spacing: dp(20)
+
+            Spinner:
+                id: from_spinner
+                text: root.from_unit
+                values: list(root.units[root.current_category].keys())
+                size_hint_x: 0.35
+                on_text: root.from_unit = self.text
+
+            MDTextField:
+                id: from_value
+                hint_text: "From value"
+                input_filter: 'float'
+                text: str(root.from_value)
+                size_hint_x: 0.3
+                on_text: root.convert()
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: dp(60)
+            spacing: dp(20)
+
+            Spinner:
+                id: to_spinner
+                text: root.to_unit
+                values: list(root.units[root.current_category].keys())
+                size_hint_x: 0.35
+                on_text: root.to_unit = self.text
+
+            MDTextField:
+                id: to_value
+                hint_text: "Result"
+                text: str(root.to_value)
+                readonly: True
+                size_hint_x: 0.3
+
+        MDRaisedButton:
+            text: "Swap Units"
+            size_hint_x: 0.5
+            pos_hint: {'center_x': 0.5}
+            on_release: root.swap_units()
+
+<TabCalculator>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(10)
+        spacing: dp(10)
+
+        MDLabel:
+            text: "Calculator"
+            halign: 'center'
+            font_style: 'H5'
+            size_hint_y: None
+            height: self.texture_size[1]
+
+        MDTextField:
+            id: display
+            text: root.expression
+            font_size: dp(32)
+            halign: 'right'
+            readonly: True
+            size_hint_y: None
+            height: dp(70)
+
+        GridLayout:
+            cols: 4
+            spacing: dp(5)
+            padding: dp(5)
+
+            MDRaisedButton:
+                text: '7'
+                on_release: root.button_press(self.text)
+            MDRaisedButton:
+                text: '8'
+                on_release: root.button_press(self.text)
+            MDRaisedButton:
+                text: '9'
+                on_release: root.button_press(self.text)
+            MDRaisedButton:
+                text: '/'
+                on_release: root.button_press(self.text)
+
+            MDRaisedButton:
+                text: '4'
+                on_release: root.button_press(self.text)
+            MDRaisedButton:
+                text: '5'
+                on_release: root.button_press(self.text)
+            MDRaisedButton:
+                text: '6'
+                on_release: root.button_press(self.text)
+            MDRaisedButton:
+                text: '*'
+                on_release: root.button_press(self.text)
+
+            MDRaisedButton:
+                text: '1'
+                on_release: root.button_press(self.text)
+            MDRaisedButton:
+                text: '2'
+                on_release: root.button_press(self.text)
+            MDRaisedButton:
+                text: '3'
+                on_release: root.button_press(self.text)
+            MDRaisedButton:
+                text: '-'
+                on_release: root.button_press(self.text)
+
+            MDRaisedButton:
+                text: 'C'
+                on_release: root.button_press(self.text)
+            MDRaisedButton:
+                text: '0'
+                on_release: root.button_press(self.text)
+            MDRaisedButton:
+                text: '='
+                on_release: root.button_press(self.text)
+            MDRaisedButton:
+                text: '+'
+                on_release: root.button_press(self.text)
+
+            MDRaisedButton:
+                text: '⌫'
+                on_release: root.button_press(self.text)
+            MDRaisedButton:
+                text: '.'
+                on_release: root.button_press(self.text)
+            MDRaisedButton:
+                text: '('
+                on_release: root.button_press(self.text)
+            MDRaisedButton:
+                text: ')'
+                on_release: root.button_press(self.text)
+
+<TabToDo>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(10)
+        spacing: dp(10)
+
+        MDLabel:
+            text: "To-Do List"
+            halign: 'center'
+            font_style: 'H5'
+            size_hint_y: None
+            height: self.texture_size[1]
+
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint_y: None
+            height: dp(50)
+            spacing: dp(10)
+
+            MDTextField:
+                id: task_input
+                hint_text: "New task"
+                size_hint_x: 0.7
+                mode: "rectangle"
+
+            MDRaisedButton:
+                text: "Add"
+                size_hint_x: 0.3
+                on_release: root.add_task()
+
+        ScrollView:
+            canvas.before:
+                Color:
+                    rgba: get_color_from_hex("#ffffff")
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+
+            MDList:
+                id: task_list
+                spacing: dp(5)
+                canvas.before:
+                    Color:
+                        rgba: get_color_from_hex("#f5f5f5")
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+<TabInfo>:
+    BoxLayout:
+        orientation: 'vertical'
+        padding: dp(20)
+        spacing: dp(20)
+
+        MDLabel:
+            text: "App Information"
+            halign: 'center'
+            font_style: 'H5'
+            size_hint_y: None
+            height: self.texture_size[1]
+
+        Image:
+            source: 'logo.png'
+            size_hint: (6, 6)
+            pos_hint: {'center_x': 0.5}
+
+        MDLabel:
+            text: "Welcome to the Modern KivyMD App!"
+            halign: 'center'
+            font_style: 'Subtitle1'
+
+        MDRaisedButton:
+            text: "About"
+            size_hint_x: 0.5
+            pos_hint: {'center_x': 0.5}
+            on_release: root.show_about()
